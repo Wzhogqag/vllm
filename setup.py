@@ -54,6 +54,21 @@ USE_PRECOMPILED_RUST_FRONTEND = (
 )
 
 
+def is_hopper_only_cuda_build() -> bool:
+    arch_list = os.getenv("TORCH_CUDA_ARCH_LIST", "")
+    if not arch_list:
+        return False
+    arches = {
+        arch.removesuffix("+PTX")
+        for arch in re.split(r"[;,\s]+", arch_list)
+        if arch.strip()
+    }
+    return bool(arches) and arches.issubset({"9.0", "9.0a"})
+
+
+HOPPER_ONLY_CUDA_BUILD = is_hopper_only_cuda_build()
+
+
 def should_require_rust_frontend() -> bool:
     value = os.getenv("VLLM_REQUIRE_RUST_FRONTEND", "")
     return value.lower() not in ("", "0", "false", "no")
@@ -1368,7 +1383,8 @@ if _is_hip():
     ext_modules.append(CMakeExtension(name="vllm._rocm_C"))
 
 if _is_cuda():
-    ext_modules.append(CMakeExtension(name="vllm.vllm_flash_attn._vllm_fa2_C"))
+    if not HOPPER_ONLY_CUDA_BUILD:
+        ext_modules.append(CMakeExtension(name="vllm.vllm_flash_attn._vllm_fa2_C"))
     if USE_PRECOMPILED_EXTENSIONS or (
         CUDA_HOME and get_nvcc_cuda_version() >= Version("12.3")
     ):
@@ -1376,9 +1392,12 @@ if _is_cuda():
         ext_modules.append(CMakeExtension(name="vllm.vllm_flash_attn._vllm_fa3_C"))
     # FA4 CuteDSL - Python-only component for FA4's cute DSL support
     # Optional since this doesn't produce a .so file, just copies Python files
-    ext_modules.append(
-        CMakeExtension(name="vllm.vllm_flash_attn._vllm_fa4_cutedsl_C", optional=True)
-    )
+    if not HOPPER_ONLY_CUDA_BUILD:
+        ext_modules.append(
+            CMakeExtension(
+                name="vllm.vllm_flash_attn._vllm_fa4_cutedsl_C", optional=True
+            )
+        )
     if USE_PRECOMPILED_EXTENSIONS or (
         CUDA_HOME and get_nvcc_cuda_version() >= Version("12.9")
     ):
@@ -1389,12 +1408,9 @@ if _is_cuda():
         ext_modules.append(
             CMakeExtension(name="vllm._flashmla_extension_C", optional=True)
         )
-    if USE_PRECOMPILED_EXTENSIONS or (
-        CUDA_HOME and get_nvcc_cuda_version() >= Version("12.0")
-    ):
-        ext_modules.append(CMakeExtension(name="vllm._flashkda_C", optional=True))
-    if envs.VLLM_USE_PRECOMPILED or (
-        CUDA_HOME and get_nvcc_cuda_version() >= Version("12.3")
+    if not HOPPER_ONLY_CUDA_BUILD and (
+        envs.VLLM_USE_PRECOMPILED
+        or (CUDA_HOME and get_nvcc_cuda_version() >= Version("12.3"))
     ):
         # DeepGEMM requires CUDA 12.3+ (SM90/SM100)
         # Optional since it won't build on unsupported architectures
