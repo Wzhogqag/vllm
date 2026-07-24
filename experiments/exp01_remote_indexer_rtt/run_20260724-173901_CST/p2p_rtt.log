@@ -1,0 +1,25 @@
+
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[rank0]:[W724 09:39:05.934544012 ProcessGroupNCCL.cpp:4094] Warning: An unbatched P2P op (send/recv) was called on this ProcessGroup with size 2.  In lazy initialization mode, this will result in a new 2-rank NCCL communicator to be created. (function operator())
+[rank1]:[W724 09:39:05.988497065 ProcessGroupNCCL.cpp:4094] Warning: An unbatched P2P op (send/recv) was called on this ProcessGroup with size 2.  In lazy initialization mode, this will result in a new 2-rank NCCL communicator to be created. (function operator())
+[rank1]:[W724 09:39:06.918642881 ProcessGroupNCCL.cpp:4094] Warning: An unbatched P2P op (send/recv) was called on this ProcessGroup with size 2.  In lazy initialization mode, this will result in a new 2-rank NCCL communicator to be created. (function operator())
+[rank0]:[W724 09:39:06.918727125 ProcessGroupNCCL.cpp:4094] Warning: An unbatched P2P op (send/recv) was called on this ProcessGroup with size 2.  In lazy initialization mode, this will result in a new 2-rank NCCL communicator to be created. (function operator())
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+
+=== Scheme A RTT on NVIDIA H200 ===
+   B     up_B   down_B   rtt_p50   rtt_p99   up_p50 down_p50  (us)
+   1     8580     8192     129.0     236.4     76.7     32.2
+   2    17160    16384      99.8     122.7     77.0     32.5
+   4    34320    32768      99.0     127.6     77.2     32.4
+   8    68640    65536     100.7     127.3     77.2     32.4
+  16   137280   131072     100.4     116.3     78.6     33.0
+  32   274560   262144     101.5     205.3     77.4     32.9
+  64   549120   524288     101.0     125.2     77.3     32.5
+ 128  1098240  1048576     100.5     195.6     78.0     33.0
+ 256  2196480  2097152     101.8     121.9     78.3     33.4
+
+61-layer serial (B=1 p50 x 61) = 7.867 ms  (H800 ref ~4.3 ms)
+wrote run_20260724-173901_CST/p2p_rtt.json
