@@ -1,0 +1,70 @@
+{
+  "transport": "NCCL GIN GDAKI",
+  "iters": 1000,
+  "warmup": 50,
+  "layers": 61,
+  "up_per_token": 8580,
+  "down_per_token": 8192,
+  "results": [
+    {
+      "B": 1,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "rtt_avg_us": 20.774914294459748,
+      "rtt_p50_us": 21.078282828282827,
+      "rtt_p95_us": 21.39848484848485,
+      "rtt_p99_us": 21.655555555555555,
+      "serial_layers_ms": 1.2672697719620447,
+      "bytes_per_rtt": 16772,
+      "gbps_effective": 0.8073198166922284
+    },
+    {
+      "B": 4,
+      "up_bytes": 34320,
+      "down_bytes": 32768,
+      "rtt_avg_us": 3.869199571472299,
+      "rtt_p50_us": 3.8813131313131315,
+      "rtt_p95_us": 4.003535353535353,
+      "rtt_p99_us": 4.05050505050505,
+      "serial_layers_ms": 0.23602117385981022,
+      "bytes_per_rtt": 67088,
+      "gbps_effective": 17.338986723414692
+    },
+    {
+      "B": 16,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "rtt_avg_us": 3.8784409754106726,
+      "rtt_p50_us": 3.886868686868687,
+      "rtt_p95_us": 4.040404040404041,
+      "rtt_p99_us": 4.0732323232323235,
+      "serial_layers_ms": 0.23658489950005102,
+      "bytes_per_rtt": 268352,
+      "gbps_effective": 69.19068814024823
+    },
+    {
+      "B": 64,
+      "up_bytes": 549120,
+      "down_bytes": 524288,
+      "rtt_avg_us": 5.862855320885624,
+      "rtt_p50_us": 3.98989898989899,
+      "rtt_p95_us": 12.012626262626263,
+      "rtt_p99_us": 12.341414141414141,
+      "serial_layers_ms": 0.3576341745740231,
+      "bytes_per_rtt": 1073408,
+      "gbps_effective": 183.08621674086515
+    },
+    {
+      "B": 256,
+      "up_bytes": 2196480,
+      "down_bytes": 2097152,
+      "rtt_avg_us": 29.331997245179064,
+      "rtt_p50_us": 44.36010101010101,
+      "rtt_p95_us": 46.01464646464647,
+      "rtt_p99_us": 50.114141414141415,
+      "serial_layers_ms": 1.7892518319559227,
+      "bytes_per_rtt": 4293632,
+      "gbps_effective": 146.38048558748216
+    }
+  ]
+}
