@@ -1,3 +1,22 @@
 __pycache__/
 *.pyc
 pids.txt
+
+# 编译产物
+*.o
+*.so
+libnccl.so
+
+# 每次跑的日志/PID(北京时间戳)
+run_*_CST/
+run_deepep_*_CST/
+run_probe_*_CST/
+run_xnode_*_CST/
+
+# 前身跨机 A/B 目录也不入库
+run_xnode_A/
+
+# 第三方文件(从 /export/home/guojinrong6/DeepEP/ 拷来做基线/参考,不属于本项目)
+# test_low_latency.py / utils.py 直接是 DeepEP tests 的原文件,不入库(用时再拷)
+exp02_nvshmem_rtt/test_low_latency.py
+exp02_nvshmem_rtt/utils.py
