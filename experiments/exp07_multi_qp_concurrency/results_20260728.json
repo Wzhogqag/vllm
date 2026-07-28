@@ -1,0 +1,228 @@
+{
+  "transport": "NCCL GIN GDAKI multi-QP",
+  "up_per_token": 8580,
+  "down_per_token": 8192,
+  "iters": 100,
+  "results": [
+    {
+      "B": 1,
+      "n_blocks": 1,
+      "num_qps": 1,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 21.291075757575758,
+      "min_us": 21.291075757575758,
+      "max_us": 21.291075757575758,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 1,
+      "num_qps": 1,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.152949494949495,
+      "min_us": 3.152949494949495,
+      "max_us": 3.152949494949495,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 1,
+      "num_qps": 2,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 20.965050505050506,
+      "min_us": 20.965050505050506,
+      "max_us": 20.965050505050506,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 2,
+      "num_qps": 2,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 11.816603535353536,
+      "min_us": 2.8796363636363638,
+      "max_us": 20.753570707070708,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 1,
+      "num_qps": 2,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 2.862727272727273,
+      "min_us": 2.862727272727273,
+      "max_us": 2.862727272727273,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 2,
+      "num_qps": 2,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.129606060606061,
+      "min_us": 3.003838383838384,
+      "max_us": 3.2553737373737377,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 1,
+      "num_qps": 4,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 20.628358585858585,
+      "min_us": 20.628358585858585,
+      "max_us": 20.628358585858585,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 2,
+      "num_qps": 4,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 11.92474494949495,
+      "min_us": 2.810106060606061,
+      "max_us": 21.03938383838384,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 4,
+      "num_qps": 4,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 6.496689393939395,
+      "min_us": 2.75,
+      "max_us": 20.426287878787882,
+      "timeouts": 100
+    },
+    {
+      "B": 16,
+      "n_blocks": 1,
+      "num_qps": 4,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 2.8850202020202023,
+      "min_us": 2.8850202020202023,
+      "max_us": 2.8850202020202023,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 2,
+      "num_qps": 4,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.244191919191919,
+      "min_us": 2.8213636363636363,
+      "max_us": 3.667020202020202,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 4,
+      "num_qps": 4,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 2.442973484848485,
+      "min_us": 2.87079797979798,
+      "max_us": 3.830787878787879,
+      "timeouts": 100
+    },
+    {
+      "B": 1,
+      "n_blocks": 1,
+      "num_qps": 8,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 21.175752525252523,
+      "min_us": 21.175752525252523,
+      "max_us": 21.175752525252523,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 2,
+      "num_qps": 8,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 11.998156565656565,
+      "min_us": 2.7869545454545457,
+      "max_us": 21.209358585858585,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 4,
+      "num_qps": 8,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 12.04659090909091,
+      "min_us": 2.8183484848484848,
+      "max_us": 21.149439393939392,
+      "timeouts": 0
+    },
+    {
+      "B": 1,
+      "n_blocks": 8,
+      "num_qps": 8,
+      "up_bytes": 8580,
+      "down_bytes": 8192,
+      "avg_us": 6.758975378787879,
+      "min_us": 2.8048434343434345,
+      "max_us": 21.178792929292932,
+      "timeouts": 200
+    },
+    {
+      "B": 16,
+      "n_blocks": 1,
+      "num_qps": 8,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.6963232323232322,
+      "min_us": 3.6963232323232322,
+      "max_us": 3.6963232323232322,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 2,
+      "num_qps": 8,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.563679292929293,
+      "min_us": 3.2520656565656565,
+      "max_us": 3.8752929292929292,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 4,
+      "num_qps": 8,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 3.619641414141414,
+      "min_us": 3.0884949494949496,
+      "max_us": 4.196828282828283,
+      "timeouts": 0
+    },
+    {
+      "B": 16,
+      "n_blocks": 8,
+      "num_qps": 8,
+      "up_bytes": 137280,
+      "down_bytes": 131072,
+      "avg_us": 2.5665151515151514,
+      "min_us": 3.0169545454545452,
+      "max_us": 3.9441565656565656,
+      "timeouts": 200
+    }
+  ]
+}
