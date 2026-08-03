@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1120" font-family="'Noto Sans CJK SC','DejaVu Sans',sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <marker id="arrowNet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+    <pattern id="waitPat" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#ecf0f1"/>
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#bdc3c7" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <text x="750" y="30" text-anchor="middle" font-size="20" font-weight="bold">Panel A — 单层 attention 数据流(方案 A:在缝②切开)</text>
+  <text x="750" y="52" text-anchor="middle" font-size="13" fill="#555">时间沿箭头推进,每 token 每 layer decode step 一次;数字 = 每 token 字节</text>
+
+  <!-- ================= LANE BACKGROUNDS ================= -->
+  <!-- LOCAL PRE: y=70-450 -->
+  <rect x="20" y="70" width="1460" height="380" fill="#eaf4ff" stroke="#3498db" stroke-width="1"/>
+  <text x="35" y="92" font-size="15" font-weight="bold" fill="#1f6fb5">① 本地 GPU(切点前)</text>
+  <text x="35" y="110" font-size="11" fill="#555">MLA 全部 + indexer 的 A 投影(wq_b, wk_weights_proj)</text>
+
+  <!-- NETWORK: y=460-580 -->
+  <rect x="20" y="460" width="1460" height="120" fill="#fff4e0" stroke="#f39c12" stroke-width="1" stroke-dasharray="6,3"/>
+  <text x="35" y="480" font-size="14" font-weight="bold" fill="#b8770f">② 网络(RDMA WRITE / NCCL GIN / NVSHMEM IBGDA)</text>
+
+  <!-- REMOTE: y=590-820 -->
+  <rect x="20" y="590" width="1460" height="230" fill="#fdeaea" stroke="#c0392b" stroke-width="1"/>
+  <text x="35" y="610" font-size="15" font-weight="bold" fill="#a02020">③ 远端 Indexer GPU</text>
+  <text x="35" y="628" font-size="11" fill="#555">indexer K cache + 打分 kernel + top-k</text>
+
+  <!-- LOCAL RESUME: y=830-1090 -->
+  <rect x="20" y="830" width="1460" height="260" fill="#eaf4ff" stroke="#3498db" stroke-width="1"/>
+  <text x="35" y="852" font-size="15" font-weight="bold" fill="#1f6fb5">④ 本地 GPU(收到 top-k 后)</text>
+  <text x="35" y="870" font-size="11" fill="#555">读 MLA KV cache 里 top-k 挑出的 2048 行 → attention 输出</text>
+
+  <!-- ================= LOCAL PRE OPS ================= -->
+  <g>
+    <rect x="60" y="145" width="90" height="52" rx="4" fill="#fff" stroke="#333"/>
+    <text x="105" y="164" text-anchor="middle" font-weight="bold">hidden</text>
+    <text x="105" y="180" text-anchor="middle" font-size="11">[7168]</text>
+    <text x="105" y="192" text-anchor="middle" font-size="10" fill="#666">14336 B</text>
+  </g>
+
+  <path d="M150,171 L180,171" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="180" y="140" width="130" height="62" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="245" y="158" text-anchor="middle" font-weight="bold">fused_qkv_a_proj</text>
+    <text x="245" y="174" text-anchor="middle" font-size="10">GEMM [7168, 2112]</text>
+    <text x="245" y="188" text-anchor="middle" font-size="10" fill="#666">MLA A + indexer 共享</text>
+    <text x="245" y="199" text-anchor="middle" font-size="9" fill="#888">attention.py:348</text>
+  </g>
+
+  <path d="M310,171 L340,171" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="340" y="130" width="80" height="82" rx="4" fill="#fff" stroke="#333"/>
+    <text x="380" y="147" text-anchor="middle" font-weight="bold">split</text>
+    <text x="380" y="164" text-anchor="middle" font-size="10">q_c [1536]</text>
+    <text x="380" y="180" text-anchor="middle" font-size="10">kv_c [512]</text>
+    <text x="380" y="196" text-anchor="middle" font-size="10">k_pe [64]</text>
+    <text x="380" y="208" text-anchor="middle" font-size="9" fill="#666">2112·2 = 4224 B</text>
+  </g>
+
+  <path d="M105,197 L105,240 L180,240" stroke="#333" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="180" y="220" width="140" height="52" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="250" y="238" text-anchor="middle" font-weight="bold">wk_weights_proj</text>
+    <text x="250" y="253" text-anchor="middle" font-size="10">GEMM [7168, 192]</text>
+    <text x="250" y="266" text-anchor="middle" font-size="9" fill="#888">indexer A(留本地)</text>
+  </g>
+  <path d="M320,246 L360,246" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="360" y="222" width="90" height="52" rx="4" fill="#fff" stroke="#333"/>
+    <text x="405" y="240" text-anchor="middle" font-size="11">index_k [128]</text>
+    <text x="405" y="255" text-anchor="middle" font-size="11">weights [64]</text>
+    <text x="405" y="268" text-anchor="middle" font-size="9" fill="#666">384 B</text>
+  </g>
+
+  <path d="M420,171 L460,171 L460,300 L110,300 L110,320" stroke="#333" stroke-width="1.2" fill="none"/>
+  <path d="M450,248 L460,248" stroke="#333" stroke-width="1.2" fill="none"/>
+  <g>
+    <rect x="60" y="320" width="400" height="70" rx="4" fill="#c3e6cb" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="260" y="342" text-anchor="middle" font-weight="bold" font-size="14">fused_norm_rope(单 Triton kernel)</text>
+    <text x="260" y="360" text-anchor="middle" font-size="10">q_c RMSNorm · kv_c RMSNorm · k_pe RoPE · 写 MLA KV cache(656B,本地)</text>
+    <text x="260" y="374" text-anchor="middle" font-size="10">index_k LayerNorm + RoPE + fp8 量化 → 作为 payload(不写本地)</text>
+    <text x="260" y="386" text-anchor="middle" font-size="9" fill="#666">kernels.py:86 · 4-program 共享一次 launch</text>
+  </g>
+
+  <path d="M260,390 L260,410" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="80" y="412" width="130" height="30" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="145" y="431" text-anchor="middle" font-size="11" font-weight="bold">q_b_proj → q_nope, q_pe</text>
+  </g>
+  <path d="M210,427 L230,427" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="230" y="412" width="130" height="30" rx="4" fill="#fce4b0" stroke="#c07f14"/>
+    <text x="295" y="431" text-anchor="middle" font-size="11" font-weight="bold">bmm K-absorb → ql_nope</text>
+  </g>
+
+  <path d="M380,171 L380,220" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+  <path d="M380,390 L380,410" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="380" y="412" width="130" height="30" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="445" y="431" text-anchor="middle" font-size="11" font-weight="bold">wq_b → index_q [64,128]</text>
+  </g>
+
+  <path d="M295,442 L295,455 L560,455 L560,412" stroke="#333" stroke-width="1.2" fill="none"/>
+  <path d="M445,442 L445,455" stroke="#333" stroke-width="1.2" fill="none"/>
+  <g>
+    <rect x="530" y="412" width="270" height="42" rx="4" fill="#c3e6cb" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="665" y="428" text-anchor="middle" font-weight="bold" font-size="13">fused_q(单 Triton kernel)</text>
+    <text x="665" y="443" text-anchor="middle" font-size="10">q_pe RoPE · index_q RoPE + fp8 + 缩放 w · MLA MQA-q 打包</text>
+  </g>
+
+  <!-- SPLIT POINT -->
+  <g>
+    <rect x="820" y="405" width="16" height="60" fill="#c0392b"/>
+    <text x="828" y="400" text-anchor="middle" font-size="12" font-weight="bold" fill="#c0392b">缝②切点</text>
+  </g>
+  <path d="M800,433 L820,433" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Payload panel -->
+  <path d="M836,433 L870,433" stroke="#c0392b" stroke-width="2" marker-end="url(#arrowNet)"/>
+  <g>
+    <rect x="870" y="405" width="200" height="70" rx="4" fill="#fff" stroke="#c0392b" stroke-width="1.5"/>
+    <text x="970" y="422" text-anchor="middle" font-weight="bold" fill="#c0392b">上行 payload</text>
+    <text x="970" y="437" text-anchor="middle" font-size="10">index_q_fp8 [64,128] = 8192 B</text>
+    <text x="970" y="450" text-anchor="middle" font-size="10">index_weights [64] = 128 B</text>
+    <text x="970" y="463" text-anchor="middle" font-size="10">index_k + scale = 132 B</text>
+    <text x="970" y="475" text-anchor="middle" font-size="10" fill="#c0392b" font-weight="bold">合计 ≈ 8580 B/token</text>
+  </g>
+
+  <!-- WAIT bar on local (in blue lane) -->
+  <g>
+    <rect x="1090" y="418" width="380" height="34" fill="url(#waitPat)" stroke="#7f8c8d"/>
+    <text x="1280" y="440" text-anchor="middle" font-size="13" font-weight="bold" fill="#555">★ 本地阻塞等待 top-k</text>
+  </g>
+
+  <!-- ================= NETWORK ARROWS ================= -->
+  <g>
+    <path d="M970,477 L970,595" stroke="#c0392b" stroke-width="3" marker-end="url(#arrowNet)"/>
+    <text x="990" y="530" font-size="12" fill="#c0392b" font-weight="bold">上行</text>
+    <text x="990" y="546" font-size="10" fill="#c0392b">8580 B</text>
+  </g>
+  <g>
+    <path d="M1280,590 L1280,455" stroke="#c0392b" stroke-width="3" marker-end="url(#arrowNet)" stroke-dasharray="6,3" fill="none"/>
+    <text x="1300" y="530" font-size="12" fill="#c0392b" font-weight="bold">下行</text>
+    <text x="1300" y="546" font-size="10" fill="#c0392b">8192 B</text>
+  </g>
+
+  <text x="600" y="510" font-size="12" fill="#b8770f" font-weight="bold">
+    单向硬件地板 ≈ 4μs(实测 ib_write_lat) · RTT 目标 &lt; 10μs · 61 层串行累积 &lt; 1 ms
+  </text>
+  <text x="600" y="528" font-size="11" fill="#555">
+    对比:H800 NCCL 4.3 ms(❌) · 跨机 NCCL 10 ms(❌) · 同机 NVLink IPC 0.5 ms(✅)
+  </text>
+  <text x="600" y="545" font-size="11" fill="#555">
+    payload 8.5 KB 远低于 900 GB/s NVLink 或 400 Gbps IB;launch 开销才是瓶颈
+  </text>
+
+  <!-- ================= REMOTE OPS ================= -->
+  <!-- receive at right side (below up arrow) -->
+  <g>
+    <rect x="880" y="660" width="200" height="52" rx="4" fill="#fff" stroke="#a02020"/>
+    <text x="980" y="678" text-anchor="middle" font-weight="bold" fill="#a02020">接收上行</text>
+    <text x="980" y="693" text-anchor="middle" font-size="10">index_q_fp8, weights, index_k</text>
+    <text x="980" y="706" text-anchor="middle" font-size="9" fill="#666">NVSHMEM 对称堆 / GDR buffer</text>
+  </g>
+
+  <!-- append K cache -->
+  <path d="M880,686 L840,686" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="640" y="660" width="200" height="52" rx="4" fill="#f8d0d0" stroke="#a02020"/>
+    <text x="740" y="678" text-anchor="middle" font-weight="bold" fill="#a02020">追加 indexer K cache</text>
+    <text x="740" y="693" text-anchor="middle" font-size="10">132 B/token/layer(paged)</text>
+    <text x="740" y="706" text-anchor="middle" font-size="9" fill="#666">DeepseekV32IndexerCache</text>
+  </g>
+
+  <!-- MQA scoring -->
+  <path d="M640,686 L600,686" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="360" y="655" width="240" height="62" rx="4" fill="#f8d0d0" stroke="#a02020"/>
+    <text x="480" y="673" text-anchor="middle" font-weight="bold" fill="#a02020">MQA 打分 + top-2048</text>
+    <text x="480" y="688" text-anchor="middle" font-size="10">score[h] = q_fp8[h] · K_cache^T</text>
+    <text x="480" y="702" text-anchor="middle" font-size="10">logit = Σ_h w[h] · score[h] → topk</text>
+    <text x="480" y="713" text-anchor="middle" font-size="9" fill="#666">计算量 ∝ B · S · 64 · 128</text>
+  </g>
+
+  <!-- top-k output -->
+  <path d="M360,686 L330,686" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="130" y="660" width="200" height="52" rx="4" fill="#fff" stroke="#a02020"/>
+    <text x="230" y="678" text-anchor="middle" font-weight="bold">top-2048 int32</text>
+    <text x="230" y="693" text-anchor="middle" font-size="10">[B, 2048] · 8192 B/token</text>
+    <text x="230" y="706" text-anchor="middle" font-size="9" fill="#666">准备回传</text>
+  </g>
+
+  <!-- send back UP arrow (long path from top-k up to local wait bar right) -->
+  <path d="M230,660 L230,632 L1280,632 L1280,590" stroke="#c0392b" stroke-width="2.5" fill="none" marker-end="url(#arrowNet)" stroke-dasharray="6,3"/>
+  <text x="700" y="625" text-anchor="middle" font-size="11" fill="#c0392b" font-weight="bold">下行:top-k 索引 → 本地 topk_indices_buffer</text>
+
+  <!-- ================= LOCAL RESUME (BLUE, BOTTOM) ================= -->
+  <g>
+    <rect x="1250" y="900" width="200" height="60" rx="4" fill="#d5e8f9" stroke="#1f6fb5" stroke-width="1.5"/>
+    <text x="1350" y="920" text-anchor="middle" font-weight="bold">forward_mqa</text>
+    <text x="1350" y="935" text-anchor="middle" font-size="10">(FlashMLA sparse)</text>
+    <text x="1350" y="950" text-anchor="middle" font-size="10">读 2048 个 MLA cache 行</text>
+  </g>
+  <!-- arrow from wait bar bottom down into forward_mqa -->
+  <path d="M1350,455 L1350,900" stroke="#1f6fb5" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrow)"/>
+  <text x="1360" y="880" font-size="10" fill="#1f6fb5">等待结束</text>
+
+  <path d="M1250,930 L1120,930" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="960" y="908" width="160" height="44" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="1040" y="924" text-anchor="middle" font-size="11">attn_out [128, 512]</text>
+    <text x="1040" y="940" text-anchor="middle" font-size="10" fill="#666">latent 空间</text>
+  </g>
+
+  <path d="M960,930 L820,930" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="640" y="906" width="180" height="48" rx="4" fill="#fce4b0" stroke="#c07f14"/>
+    <text x="730" y="924" text-anchor="middle" font-weight="bold">bmm V-absorb</text>
+    <text x="730" y="939" text-anchor="middle" font-size="10">x · W_UV → [128, 128]</text>
+    <text x="730" y="950" text-anchor="middle" font-size="9" fill="#666">attention.py:531</text>
+  </g>
+
+  <path d="M640,930 L560,930" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="400" y="906" width="160" height="48" rx="4" fill="#d5e8f9" stroke="#1f6fb5"/>
+    <text x="480" y="924" text-anchor="middle" font-weight="bold">o_proj</text>
+    <text x="480" y="939" text-anchor="middle" font-size="10">[16384, 7168]</text>
+    <text x="480" y="950" text-anchor="middle" font-size="9" fill="#666">→ [7168]</text>
+  </g>
+
+  <path d="M400,930 L330,930" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="180" y="908" width="150" height="44" rx="4" fill="#fff" stroke="#333"/>
+    <text x="255" y="925" text-anchor="middle" font-weight="bold">hidden' [7168]</text>
+    <text x="255" y="940" text-anchor="middle" font-size="10" fill="#666">→ MLP/MoE 层</text>
+  </g>
+
+  <!-- annotation: what stays / what leaves -->
+  <g>
+    <rect x="60" y="985" width="700" height="90" rx="6" fill="#fff" stroke="#2e8b57" stroke-width="1.5"/>
+    <text x="410" y="1005" text-anchor="middle" font-weight="bold" fill="#2e8b57" font-size="13">切分范围</text>
+    <text x="80" y="1024" font-size="11" fill="#1f6fb5" font-weight="bold">本地保留(蓝色区块):</text>
+    <text x="80" y="1040" font-size="11" fill="#333">
+      MLA 全部(fused_qkv_a_proj / q_b_proj / o_proj / MLA KV cache / forward_mqa / bmm 吸收对)
+    </text>
+    <text x="80" y="1054" font-size="11" fill="#333">
+      + indexer 的两个 A 投影(wq_b, wk_weights_proj)+ 两个 Triton 融合 kernel
+    </text>
+    <text x="80" y="1069" font-size="11" fill="#a02020" font-weight="bold">远端拿(红色区块):</text>
+    <text x="215" y="1069" font-size="11" fill="#333">
+      indexer K cache 存储 + MQA 打分 + top-2048 kernel
+    </text>
+  </g>
+
+  <g>
+    <rect x="780" y="985" width="700" height="90" rx="6" fill="#fffbe8" stroke="#c07f14" stroke-width="1.5"/>
+    <text x="1130" y="1005" text-anchor="middle" font-weight="bold" fill="#8a5a10" font-size="13">为什么选缝②(而非缝①送 hidden 或缝③只切打分)</text>
+    <text x="800" y="1024" font-size="11">• 不拆融合 kernel:fused_norm_rope、fused_q 完整在本地跑完</text>
+    <text x="800" y="1040" font-size="11">• 两侧 cache 物理分家干净:MLA cache 留本地(forward_mqa 要读),indexer K cache 去远端</text>
+    <text x="800" y="1056" font-size="11">• RPC 语义自洽:一次上行 = "打这 token 分",一次下行 = "该看哪 2048 个"</text>
+    <text x="800" y="1072" font-size="11">• 61 层每层一次串行 RTT — 严格串行来自 index_q 依赖同层 q_c(layer-local)</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(20,1085)">
+    <text x="0" y="0" font-size="11" fill="#666">
+      图例:■ 蓝=本地  ■ 红=远端  ■ 橙=网络  ■ 绿=Triton 融合  ■ 黄=MLA 吸收 bmm  ▨ 阻塞等待  → 本地/远端内数据流  ⟶(红) 跨机 RDMA
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 780" font-family="'Noto Sans CJK SC','DejaVu Sans',sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <marker id="arrowNet2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+    <pattern id="waitPat2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="#ecf0f1"/>
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#bdc3c7" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <text x="750" y="30" text-anchor="middle" font-size="20" font-weight="bold">Panel B — 61 层串行 RTT 累积对比("选对传输原语"是生死线)</text>
+  <text x="750" y="52" text-anchor="middle" font-size="12" fill="#555">每层的 index_q 依赖同层 q_c → 严格串行 61 次往返;不能跨层批(layer-local 约束)</text>
+
+  <!-- time axis: bar area x=210..1440 = 1230px 对应 4.3ms -->
+  <text x="210" y="80" font-size="11" fill="#666">0</text>
+  <text x="1440" y="80" text-anchor="end" font-size="11" fill="#666">4.3 ms</text>
+  <line x1="210" y1="85" x2="1440" y2="85" stroke="#999" stroke-width="0.5"/>
+
+  <!-- ================== Row 1: H800 NCCL ================== -->
+  <g>
+    <text x="200" y="120" text-anchor="end" font-size="12" font-weight="bold" fill="#a02020">❌ H800 NCCL</text>
+    <text x="200" y="136" text-anchor="end" font-size="10" fill="#666">70μs/层</text>
+    <text x="200" y="150" text-anchor="end" font-size="10" fill="#a02020" font-weight="bold">61 层 = 4.3 ms</text>
+    <g transform="translate(210,110)">
+      <rect x="0" y="0" width="1230" height="30" fill="url(#waitPat2)" stroke="#a02020" stroke-width="1"/>
+      <text x="615" y="19" text-anchor="middle" font-size="11" font-weight="bold" fill="#a02020">
+        61 × 70μs = 4.3 ms(decode 每步掉档 ~20%,不可接受)
+      </text>
+    </g>
+  </g>
+
+  <!-- ================== Row 2: cross-node NCCL ================== -->
+  <g>
+    <text x="200" y="200" text-anchor="end" font-size="12" font-weight="bold" fill="#a02020">❌ 跨机 NCCL</text>
+    <text x="200" y="216" text-anchor="end" font-size="10" fill="#666">130-167μs/层</text>
+    <text x="200" y="230" text-anchor="end" font-size="10" fill="#a02020" font-weight="bold">61 层 ≈ 10 ms</text>
+    <g transform="translate(210,190)">
+      <!-- clipped bar with visible edge going off-canvas -->
+      <rect x="0" y="0" width="1230" height="30" fill="url(#waitPat2)" stroke="#a02020" stroke-width="2"/>
+      <text x="615" y="19" text-anchor="middle" font-size="11" font-weight="bold" fill="#a02020">
+        灾难:decode 每步 &gt;10ms — 完全不可用
+      </text>
+      <!-- indication that it extends beyond -->
+      <path d="M1230,15 L1260,15" stroke="#a02020" stroke-width="2" stroke-dasharray="4,3"/>
+      <text x="1265" y="19" font-size="10" fill="#a02020" font-weight="bold">≫</text>
+    </g>
+  </g>
+
+  <!-- ================== Row 3: same-node NVLink IPC ================== -->
+  <g>
+    <text x="200" y="280" text-anchor="end" font-size="12" font-weight="bold" fill="#2e8b57">✅ 同机 NVLink IPC</text>
+    <text x="200" y="296" text-anchor="end" font-size="10" fill="#666">8μs/层</text>
+    <text x="200" y="310" text-anchor="end" font-size="10" fill="#2e8b57" font-weight="bold">61 层 = 0.5 ms</text>
+    <g transform="translate(210,270)">
+      <!-- 0.5ms out of 4.3ms → 143 px -->
+      <rect x="0" y="0" width="143" height="30" fill="#c3e6cb" stroke="#2e8b57" stroke-width="1.5"/>
+      <text x="71" y="19" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e8b57">0.5 ms</text>
+      <line x1="143" y1="15" x2="1230" y2="15" stroke="#bdc3c7" stroke-dasharray="4,3"/>
+      <text x="1225" y="10" text-anchor="end" font-size="10" fill="#666">相对基线,decode 掉档 &lt; 3%</text>
+    </g>
+  </g>
+
+  <!-- ================== Row 4: RDMA / GIN / NVSHMEM ================== -->
+  <g>
+    <text x="200" y="360" text-anchor="end" font-size="12" font-weight="bold" fill="#2e8b57">✅ RDMA WRITE 地板</text>
+    <text x="200" y="376" text-anchor="end" font-size="10" fill="#666">4μs/层(单向硬件)</text>
+    <text x="200" y="390" text-anchor="end" font-size="10" fill="#2e8b57" font-weight="bold">61 层 ≈ 0.25 ms</text>
+    <g transform="translate(210,350)">
+      <!-- 0.25ms out of 4.3 -> 72 px -->
+      <rect x="0" y="0" width="72" height="30" fill="#c3e6cb" stroke="#2e8b57" stroke-width="1.5"/>
+      <text x="36" y="19" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e8b57">0.25 ms</text>
+      <line x1="72" y1="15" x2="1230" y2="15" stroke="#bdc3c7" stroke-dasharray="4,3"/>
+      <text x="1225" y="10" text-anchor="end" font-size="10" fill="#666">跨机可达同机 IPC 同量级(理论上界)</text>
+    </g>
+  </g>
+
+  <!-- separator -->
+  <line x1="60" y1="420" x2="1440" y2="420" stroke="#999" stroke-width="0.5"/>
+
+  <!-- ================== bottom: single-hop breakdown ================== -->
+  <text x="60" y="450" font-size="14" font-weight="bold">单次 RTT 拆解 — 为什么 NCCL 慢、RDMA 快:</text>
+
+  <g transform="translate(60,470)">
+    <!-- NCCL breakdown -->
+    <g>
+      <rect x="0" y="0" width="70" height="26" fill="#f8d0d0" stroke="#a02020"/>
+      <text x="35" y="17" text-anchor="middle" font-size="10">launch</text>
+      <rect x="70" y="0" width="140" height="26" fill="#f8d0d0" stroke="#a02020"/>
+      <text x="140" y="17" text-anchor="middle" font-size="10">NCCL 软件栈</text>
+      <rect x="210" y="0" width="18" height="26" fill="#c3e6cb" stroke="#2e8b57"/>
+      <text x="219" y="17" text-anchor="middle" font-size="9">硬件</text>
+      <rect x="228" y="0" width="140" height="26" fill="#f8d0d0" stroke="#a02020"/>
+      <text x="298" y="17" text-anchor="middle" font-size="10">NCCL 软件栈</text>
+      <rect x="368" y="0" width="70" height="26" fill="#f8d0d0" stroke="#a02020"/>
+      <text x="403" y="17" text-anchor="middle" font-size="10">launch</text>
+      <text x="455" y="17" font-size="12" fill="#a02020" font-weight="bold">NCCL:130μs / 层</text>
+      <text x="455" y="32" font-size="10" fill="#666">硬件仅 4μs,其余 126μs 全是软件栈</text>
+    </g>
+
+    <!-- RDMA breakdown -->
+    <g transform="translate(0,70)">
+      <rect x="0" y="0" width="15" height="26" fill="#c3e6cb" stroke="#2e8b57"/>
+      <text x="7" y="17" text-anchor="middle" font-size="9" fill="#555">post</text>
+      <rect x="15" y="0" width="18" height="26" fill="#c3e6cb" stroke="#2e8b57" stroke-width="2"/>
+      <text x="24" y="17" text-anchor="middle" font-size="9">wire</text>
+      <rect x="33" y="0" width="15" height="26" fill="#c3e6cb" stroke="#2e8b57"/>
+      <text x="40" y="17" text-anchor="middle" font-size="9" fill="#555">poll</text>
+      <text x="60" y="17" font-size="12" fill="#2e8b57" font-weight="bold">RDMA WRITE:~4μs / 层(单向硬件地板)</text>
+      <text x="60" y="32" font-size="10" fill="#666">用户态 verbs 直控网卡,零拷贝,单边操作</text>
+    </g>
+
+    <!-- IBGDA / GIN -->
+    <g transform="translate(0,140)">
+      <rect x="0" y="0" width="20" height="26" fill="#c3e6cb" stroke="#2e8b57" stroke-width="2"/>
+      <text x="10" y="17" text-anchor="middle" font-size="9">wire</text>
+      <text x="30" y="17" font-size="12" fill="#2e8b57" font-weight="bold">IBGDA / NCCL GIN:GPU 直接 post,连 CPU host 都不经过</text>
+      <text x="30" y="32" font-size="10" fill="#666">目标:kernel 内部 put_signal + wait_until,launch 开销进 kernel 一次</text>
+    </g>
+  </g>
+
+  <!-- annotation box on right -->
+  <g transform="translate(760,455)">
+    <rect x="0" y="0" width="680" height="215" rx="6" fill="#fffbe8" stroke="#c07f14" stroke-width="1.5"/>
+    <text x="340" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#8a5a10">
+      为什么"launch-bound"决定选型
+    </text>
+    <text x="20" y="52" font-size="12">• payload 8580 B 极小 → 900 GB/s NVLink 只需 ~10ns,400 Gbps IB 只需 ~170ns</text>
+    <text x="20" y="72" font-size="12">• 跨机 NCCL 130μs 里,126μs 全是 CPU proxy、内存拷贝、多次 launch,与带宽无关</text>
+    <text x="20" y="92" font-size="12">• payload 从 256 B 涨到 32 KB(256×),RTT 仍是 130μs → 板上钉钉是 launch 开销</text>
+    <text x="20" y="122" font-size="13" font-weight="bold" fill="#8a5a10">出路(按复杂度排):</text>
+    <text x="30" y="142" font-size="12">① 同机场景 → NVLink IPC peer copy(8μs 已足够,进程分离几乎零成本)</text>
+    <text x="30" y="162" font-size="12">② 跨机场景 → NCCL GIN(GDAKI)或 NVSHMEM IBGDA:kernel 内一次 post</text>
+    <text x="30" y="182" font-size="12">③ 极致场景 → 手写 IBGDA WQE(DeepEP 路线,warp 级 put + signal)</text>
+    <text x="20" y="205" font-size="11" fill="#666" font-style="italic">
+      前提:所有 payload 必须在 NVSHMEM 对称堆内(rkey 靠 offset 查表)
+    </text>
+  </g>
+
+  <text x="60" y="745" font-size="11" fill="#666">
+    画布刻度:1230 px = 4.3 ms(H800 基线) · 1 μs ≈ 0.29 px · 跨机 NCCL 条超出画布(≫)是刻意保留视觉冲击力
+  </text>
+</svg>
