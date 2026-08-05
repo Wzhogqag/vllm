@@ -11,8 +11,8 @@ if [[ ! -x "$VLLM_BIN" ]]; then
 fi
 
 # ---- Tunables (override via env) -------------------------------------------
-MODEL_PATH="${MODEL_PATH:-/models/Qwen3-8B}"
-TP="${TP:-1}"                       # tensor-parallel size == number of GPUs needed
+MODEL_PATH="${MODEL_PATH:-/models/DeepSeek-V3.2}"
+TP="${TP:-8}"                       # tensor-parallel size == number of GPUs needed
 PORT="${PORT:-30000}"
 LOG_DIR="${LOG_DIR:-log}"
 # A GPU counts as "free" when its used memory is below this many MiB.
@@ -83,8 +83,8 @@ mkdir -p "$LOG_DIR"
         --trust-remote-code \
         --max-num-batched-tokens 81920 \
         --no-enable-prefix-caching \
-        --gpu-memory-utilization 0.8 \
+        --gpu-memory-utilization 0.90 \
         --max-num-seqs 512 \
-        --block-size 32 \
+        --block-size 64 \
         --enforce-eager \
         > "$LOG_DIR/vllm.log" 2>&1 &

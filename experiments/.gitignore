@@ -7,8 +7,9 @@ pids.txt
 *.so
 libnccl.so
 
-# 每次跑的日志/PID(北京时间戳)
-run_*_CST/
+# 每次跑的日志/PID/dump 产物(北京时间戳)。用宽匹配覆盖所有 run_ 目录,
+# 包括 _CST / _CST_fullscore / _CST_ncclcheck 等后缀(内含大 .pt dump,严禁入库)。
+run_*/
 run_deepep_*_CST/
 run_probe_*_CST/
 run_xnode_*_CST/

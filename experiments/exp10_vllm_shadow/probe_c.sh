@@ -13,9 +13,10 @@ if [[ -z "$LATEST" ]]; then
 fi
 LOG="$LATEST/server.log"
 
-echo "=== waiting for server ready (Uvicorn banner) ==="
+READY_RE="Application startup complete|Uvicorn running"
+echo "=== waiting for server ready (startup banner) ==="
 for i in $(seq 1 60); do  # 最多 60 × 10s = 10 分钟
-  if grep -q "Uvicorn running" "$LOG" 2>/dev/null; then
+  if grep -qE "$READY_RE" "$LOG" 2>/dev/null; then
     echo "READY (took ${i}0s)"
     break
   fi
@@ -23,7 +24,7 @@ for i in $(seq 1 60); do  # 最多 60 × 10s = 10 分钟
   echo -n "."
 done
 
-if ! grep -q "Uvicorn running" "$LOG"; then
+if ! grep -qE "$READY_RE" "$LOG"; then
   echo ""
   echo "TIMEOUT — check $LOG for errors"
   tail -20 "$LOG"
