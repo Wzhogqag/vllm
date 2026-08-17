@@ -54,7 +54,7 @@ __global__ void rank0_put_up_kernel(RixGinCtx ctx, int up_bytes)
             ctx.window, off,
             ctx.window, off,
             (size_t)up_bytes,
-            ncclGin_WeakSignalInc{SIG_UP});
+            ncclGin_StrongSignalInc{SIG_UP});
 }
 
 __launch_bounds__(32, 1)
@@ -88,7 +88,7 @@ __global__ void rank1_put_down_kernel(RixGinCtx ctx, int down_bytes)
             ctx.window, off,
             ctx.window, off,
             (size_t)down_bytes,
-            ncclGin_WeakSignalInc{SIG_DOWN});
+            ncclGin_StrongSignalInc{SIG_DOWN});
 }
 
 // ============================================================
